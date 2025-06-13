@@ -210,6 +210,11 @@ static const char *flameshot[] = { "flameshot", "gui", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key            function                argument */
+	  { MODKEY|ShiftMask, XK_s, spawn, SHCMD(
+      "scrot -s /tmp/screenshot.png && "                             \
+      "xclip -selection clipboard -t image/png -i /tmp/screenshot.png && " \
+      "mv /tmp/screenshot.png ~/Pictures/screenshots/screenshot_$(date '+%Y-%m-%d_%H-%M-%S').png") },
+	  
 	{ MODKEY,                       XK_p,          spawn,                  {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return,     spawn,                  {.v = termcmd } },
 	{ MODKEY,                       XK_b,          togglebar,              {0} },
@@ -255,13 +260,12 @@ static const Key keys[] = {
 	
   /* custom  */
 	{ 0,                            XF86XK_AudioMute,           spawn,          SHCMD("pactl set-sink-mute 0 toggle") },
-	{ 0,                            XF86XK_AudioLowerVolume,    spawn,          SHCMD("pactl set-sink-volume 0 -3%") },
-  { 0,                            XF86XK_AudioRaiseVolume,    spawn,          SHCMD("pactl set-sink-volume 0 +3%") },
-  { 0,                            XF86XK_MonBrightnessUp,     spawn,          SHCMD("brightnessctl g +5%") },
-  { 0,                            XF86XK_MonBrightnessDown,   spawn,          SHCMD("brightnessctl g 5%-") },
-  { 0,                            XK_Print,                   spawn,          {.v = flameshot} },
-  { 0,                            XK_ISO_Next_Group,          spawn,          SHCMD("pkill -RTMIN+10 dwmblocks") },
-
+	{ 0, XF86XK_AudioLowerVolume, spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ -5% && dunstify -r 9110 ' '$(pactl get-sink-volume @DEFAULT_SINK@ | grep -o '[0-9]\\+%' | head -1)") },
+	{ 0, XF86XK_AudioRaiseVolume, spawn, SHCMD("pactl set-sink-volume @DEFAULT_SINK@ +5% && dunstify -r 9110 ' '$(pactl get-sink-volume @DEFAULT_SINK@ | grep -o '[0-9]\\+%' | head -1)") },
+	{ 0,                            XF86XK_MonBrightnessUp,     spawn,          SHCMD("brightnessctl set +5%") },
+	{ 0,                            XF86XK_MonBrightnessDown,   spawn,          SHCMD("brightnessctl set 5%-") },
+	{ 0,                            XK_Print,                   spawn,          {.v = flameshot} },
+ { 0,                       XK_Mode_switch, spawn, SHCMD("pkill -RTMIN+1 dwmblocks") },
   TAGKEYS(                        XK_1,                                  0)
 	TAGKEYS(                        XK_2,                                  1)
 	TAGKEYS(                        XK_3,                                  2)

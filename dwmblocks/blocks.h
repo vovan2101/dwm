@@ -1,17 +1,34 @@
-//Modify this file to change what commands output to your statusbar, and recompile using the make command.
 static const Block blocks[] = {
-	/*Icon*/	/*Command*/		/*Update Interval*/	/*Update Signal*/
-  {"┇  ", "xset -q|grep LED| awk '{ if (substr ($10,5,1) == 1) print \"[RU]\"; else print \"[EN]\"; }'", 0, 1},
+    /*Icon*/  /*Command*/  /*Interval*/ /*Signal*/
 
-  {" ", "echo \"$(cat /sys/class/power_supply/BAT0/capacity)%\"", 15, 0},
+    // Звук: mute ↔ громкость
+    {"┇  ",  "amixer get Master | awk -F'[][]' '/Left:/ { \
+                if ($4==\"off\") printf \"  Mute\"; \
+                else printf \" %s\", $2 }'",                                            5,          0},
 
-  {" " , "curl -s 'wttr.in/Tashkent?format=%t'", 300, 0},
+    // Язык
+    {"  ", "xset -q|grep LED| awk '{ if (substr ($10,5,1) == 1) print \"[RU]\"; else print \"[EN]\"; }'", 0, 1},
 
-	{" " , "date '+%d.%m'", 60, 0},
-	{" ", "date '+%H:%M  '", 5, 0},
+    // RAM
+    {"  ",  "free -m | awk 'NR==2{printf \"%3.0f%%\", $3/$2*100}'",                                                 5,          0},
 
+    // Battery
+    {"  ",  "cat /sys/class/power_supply/BAT0/capacity | awk '{print $1\"%\"}'",                                   15,         0},
+
+    // Wi-Fi
+    {"  ",  "nmcli radio wifi | awk '{if ($1==\"enabled\") print \"on\"; else print \"off\"}'",            10,         0},
+
+    // Bluetooth
+    {"  ",  "bash -c 'bluetoothctl info 90:7A:58:EA:C2:7A | grep -q \"Connected: yes\" && echo on || echo off'", 10, 0},
+    
+    // Погода Khabarovsk
+    {"  ",  "curl -s 'wttr.in/Khabarovsk?format=%t'",                                                              300,        0},
+
+    // Дата и время
+    {"  ",  "date '+%d.%m'",                                                                                       60,         0},
+    {"  ",  "date '+%H:%M'",                                                                                     5,          0},
 };
 
-//sets delimiter between status commands. NULL character ('\0') means no delimiter.
+// возвращаем трёхчленный разделитель между блоками
 static char delim[] = "  ┇  ";
-static unsigned int delimLen = 7;
+static unsigned int delimLen = 5;
