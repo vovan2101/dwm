@@ -208,6 +208,35 @@ static const char *dmenucmd[] = {
 static const char *termcmd[]  = { "alacritty", NULL };
 static const char *flameshot[] = { "flameshot", "gui", NULL };
 
+void
+floatmove(const Arg *arg) {
+    Client *c;
+    if (!(c = selmon->sel) || !c->isfloating)
+        return;
+    int *m = (int*)arg->v;
+    resizeclient(c,
+        c->x + m[0],
+        c->y + m[1],
+        c->w,
+        c->h
+    );
+}
+
+/* изменяем размер плавающего окна */
+void
+floatresize(const Arg *arg) {
+    Client *c;
+    if (!(c = selmon->sel) || !c->isfloating)
+        return;
+    int *r = (int*)arg->v;
+    resizeclient(c,
+        c->x,
+        c->y,
+        c->w + r[0],
+        c->h + r[1]
+    );
+}
+
 static const Key keys[] = {
 	/* modifier                     key            function                argument */
 	  { MODKEY|ShiftMask, XK_s, spawn, SHCMD(
@@ -249,8 +278,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_t,          setlayout,              {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,          setlayout,              {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,          setlayout,              {.v = &layouts[2]} },
-	{ MODKEY,                       XK_space,      setlayout,              {0} },
-	{ MODKEY|ShiftMask,             XK_space,      togglefloating,         {0} },
+	{ MODKEY,                       XK_f,          togglefloating,         {0} },
 	{ MODKEY,                       XK_0,          view,                   {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,          tag,                    {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,      focusmon,               {.i = -1 } },
@@ -265,7 +293,7 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_MonBrightnessUp,     spawn,          SHCMD("brightnessctl set +5%") },
 	{ 0,                            XF86XK_MonBrightnessDown,   spawn,          SHCMD("brightnessctl set 5%-") },
 	{ 0,                            XK_Print,                   spawn,          {.v = flameshot} },
- { 0,                       XK_Mode_switch, spawn, SHCMD("pkill -RTMIN+1 dwmblocks") },
+ 	{ 0,                       XK_Mode_switch, spawn, SHCMD("pkill -RTMIN+1 dwmblocks") },
   TAGKEYS(                        XK_1,                                  0)
 	TAGKEYS(                        XK_2,                                  1)
 	TAGKEYS(                        XK_3,                                  2)
@@ -275,6 +303,17 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_7,                                  6)
 	TAGKEYS(                        XK_8,                                  7)
 	TAGKEYS(                        XK_9,                                  8)
+
+	/* Move floating windows with Win+Alt+H/J/K/L */
+{ MODKEY|Mod1Mask, XK_h, floatmove,   {.v = (int[]){ -50,   0 }} },
+{ MODKEY|Mod1Mask, XK_l, floatmove,   {.v = (int[]){ +50,   0 }} },
+{ MODKEY|Mod1Mask, XK_j, floatmove,   {.v = (int[]){   0, +50 }} },
+{ MODKEY|Mod1Mask, XK_k, floatmove,   {.v = (int[]){   0, -50 }} },
+/* Resize floating windows with Win+Shift+H/J/K/L */
+{ MODKEY|ShiftMask, XK_h, floatresize, {.v = (int[]){ -50,   0 }} },
+{ MODKEY|ShiftMask, XK_l, floatresize, {.v = (int[]){ +50,   0 }} },
+{ MODKEY|ShiftMask, XK_j, floatresize, {.v = (int[]){   0, +50 }} },
+{ MODKEY|ShiftMask, XK_k, floatresize, {.v = (int[]){   0, -50 }} },
 };
 
 /* button definitions */

@@ -7,8 +7,12 @@ static const Block blocks[] = {
                 else printf \" %s\", $2 }'",                                            5,          0},
 
     // Язык
-    {"  ", "xset -q|grep LED| awk '{ if (substr ($10,5,1) == 1) print \"[RU]\"; else print \"[EN]\"; }'", 0, 1},
-
+    {"  ", "xkblayout-state print %s | awk '{ \
+      l=tolower($0); \
+      if (l==\"us\") printf \"[EN]\"; \
+      else printf \"[%s]\", toupper($0) \
+    }'", 0, 1 },    
+    
     // RAM
     {"  ",  "free -m | awk 'NR==2{printf \"%3.0f%%\", $3/$2*100}'",                                                 5,          0},
 
